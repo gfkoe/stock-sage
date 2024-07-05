@@ -6,7 +6,7 @@ type Text = {
 };
 export default function Header({ text }: Text) {
   return (
-    <header className="header-component flex items-center">
+    <header className="header-component flex items-center justify-center">
       &nbsp;
       <h1 className="text-4xl">{text}</h1>
       &nbsp;
