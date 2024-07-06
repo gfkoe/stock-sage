@@ -3,18 +3,33 @@ import React from "react";
 import { useState } from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import { getStock } from "@/actions/YahooFetch";
+
+type Stock = {
+  name: string;
+  price: number;
+};
+
 function StockList() {
-  const [stocks, setStocks] = useState<string[]>([]);
+  const [stocks, setStocks] = useState<Stock[]>([]);
   const [stockName, setStockName] = useState<string>("");
   //const stockList = stocks.map((item) => <li>{item}</li>);
   function handleChange(event: React.ChangeEvent<any>): void {
     setStockName(event.target.value);
   }
-  function addToList(): void {
-    setStocks([...stocks, stockName]);
+  async function addToList(): Promise<void> {
+    if (!stockName) return;
+    try {
+      const { regularMarketPrice, symbol } = await getStock(stockName);
 
-    console.log(stockName);
-    setStockName("");
+      const stock = { name: symbol, price: regularMarketPrice };
+      setStocks((prevStocks) => [...prevStocks, stock as Stock]);
+
+      console.log(stockName);
+      setStockName("");
+    } catch (error) {
+      alert("An unexpected error occured.");
+    }
   }
   return (
     <div>
@@ -34,7 +49,16 @@ function StockList() {
           Add
         </Button>
       </div>
-      <ul className="flex items-center justify-evenly">{stocks}</ul>
+      <ul className="block items-center justify-evenly">
+        {stocks.map((stock, index) => (
+          <li className="flex justify-between text-4xl" key={index}>
+            <span className="text-left">{stock.name}:</span>
+            <span className="text-right">
+              ${Number(stock.price).toFixed(2)}
+            </span>
+          </li>
+        ))}
+      </ul>
     </div>
   );
 }
