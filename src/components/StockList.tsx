@@ -4,7 +4,7 @@ import { useState } from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { getStock } from "@/actions/YahooFetch";
-
+import AlertComponent from "@/components/Alert";
 type Stock = {
   name: string;
   price: number;
@@ -13,7 +13,7 @@ type Stock = {
 function StockList() {
   const [stocks, setStocks] = useState<Stock[]>([]);
   const [stockName, setStockName] = useState<string>("");
-  //const stockList = stocks.map((item) => <li>{item}</li>);
+  const [error, setError] = useState<string | null>(null);
   function handleChange(event: React.ChangeEvent<any>): void {
     setStockName(event.target.value);
   }
@@ -21,18 +21,24 @@ function StockList() {
     if (!stockName) return;
     try {
       const { regularMarketPrice, symbol } = await getStock(stockName);
-
       const stock = { name: symbol, price: regularMarketPrice };
       setStocks((prevStocks) => [...prevStocks, stock as Stock]);
 
-      console.log(stockName);
       setStockName("");
-    } catch (error) {
-      alert("An unexpected error occured.");
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        setError(error.message);
+      }
     }
   }
   return (
     <div>
+      <div className="flex flex-col items-center">
+        {error && (
+          <AlertComponent alertTitle="Error" alertDescription={error} />
+        )}
+      </div>
+      <br />
       <div className="flex items-center justify-evenly">
         <label>Stock:</label>
         &nbsp;
