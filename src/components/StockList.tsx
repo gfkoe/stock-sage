@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 function StockList() {
   const [stocks, setStocks] = useState<string[]>([]);
   const [stockName, setStockName] = useState<string>("");
-  const stockList = stocks.map((item) => <li>{item}</li>);
+  //const stockList = stocks.map((item) => <li>{item}</li>);
   function handleChange(event: React.ChangeEvent<any>): void {
     setStockName(event.target.value);
   }
@@ -34,7 +34,7 @@ function StockList() {
           Add
         </Button>
       </div>
-      <ul className="flex items-center justify-evenly">{stockList}</ul>
+      <ul className="flex items-center justify-evenly">{stocks}</ul>
     </div>
   );
 }
