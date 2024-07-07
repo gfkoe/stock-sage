@@ -5,3 +5,17 @@
 .header-component {
   padding: 0.5rem;
 }
+@layer utilities {
+  @keyframes slideIn {
+    from {
+      transform: translateY(-1rem);
+    }
+    to {
+      transform: translateY(0);
+    }
+  }
+
+  .animate-slideIn {
+    animation: slideIn 0.5s ease-out forwards;
+  }
+}

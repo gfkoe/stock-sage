@@ -1,7 +1,7 @@
 import StockList from "@/components/StockList";
 export default function Home() {
   return (
-    <main className="min-h-screen p-24">
+    <main className=" px-24 pt-1">
       <StockList />
     </main>
   );

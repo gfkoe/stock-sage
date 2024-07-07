@@ -31,16 +31,23 @@ function StockList() {
       }
     }
   }
+  function closeAlert(): void {
+    setError(null);
+  }
   return (
-    <div>
-      <div className="flex flex-col items-center">
+    <div className="relative">
+      <div className="h-16 flex flex-col items-center">
         {error && (
-          <AlertComponent alertTitle="Error" alertDescription={error} />
+          <AlertComponent
+            alertTitle="Error"
+            alertDescription={error}
+            onClose={closeAlert}
+          />
         )}
       </div>
       <br />
-      <div className="flex items-center justify-evenly">
-        <label>Stock:</label>
+      <div className="flex items-center justify-center">
+        <label>STOCK:</label>
         &nbsp;
         <Input
           className="w-3/4"
@@ -51,6 +58,7 @@ function StockList() {
           value={stockName}
           onChange={handleChange}
         />
+        &nbsp;
         <Button onClick={addToList} type="submit">
           Add
         </Button>
