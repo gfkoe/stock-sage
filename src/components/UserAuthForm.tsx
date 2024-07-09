@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 
-interface UserAuthFormProps extends React.HTMLAttributes<HTMLDivElement> {}
+interface UserAuthFormProps extends React.HTMLAttributes<HTMLDivElement> { }
 
 export function UserAuthForm({ className, ...props }: UserAuthFormProps) {
   const [isLoading, setIsLoading] = useState<boolean>(false);
@@ -23,9 +23,9 @@ export function UserAuthForm({ className, ...props }: UserAuthFormProps) {
   return (
     <div className={cn("grid gap-6", className)} {...props}>
       <form onSubmit={onSubmit}>
-        <div className="grid gap2">
+        <div className="grid gap-2">
           <div className="grid gap-1">
-            <Label className="sr-only" htmlFor="email>">
+            <Label className="sr-only" htmlFor="email">
               Email
             </Label>
             <Input
@@ -46,15 +46,13 @@ export function UserAuthForm({ className, ...props }: UserAuthFormProps) {
           </Button>
         </div>
       </form>
-      <div className="relative">
-        <div className="absolute inset-0 flex items-center">
-          <span className="w-full border-t" />
+      <div className="flex items-center">
+
+        <div className="flex-1 border-t"></div>
+        <div className="px-4 text-muted-foreground text-xs uppercase">
+          Or continue with
         </div>
-        <div className="relative flex justify-center text-xs uppercase">
-          <span className="bg-background px-2 text-muted-foreground">
-            Or continue with
-          </span>
-        </div>
+        <div className="flex-1 border-t"></div>
       </div>
       <Button variant="outline" type="button" disabled={isLoading}>
         {isLoading ? (
@@ -64,6 +62,6 @@ export function UserAuthForm({ className, ...props }: UserAuthFormProps) {
         )}{" "}
         GitHub
       </Button>
-    </div>
+    </div >
   );
 }
