@@ -58,6 +58,9 @@ function StockList() {
         )}
       </div>
 
+      <br />
+      <br />
+
       <div className="flex items-center justify-center">
         <label>STOCK:</label>
         &nbsp;
