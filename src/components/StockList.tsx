@@ -60,7 +60,6 @@ function StockList() {
 
       <br />
       <br />
-
       <div className="flex items-center justify-center">
         <label>STOCK:</label>
         &nbsp;
@@ -72,6 +71,7 @@ function StockList() {
           name="stockName"
           value={stockName}
           onChange={handleChange}
+          maxLength={5}
         />
         &nbsp;
         <Button onClick={addToList} type="submit">
