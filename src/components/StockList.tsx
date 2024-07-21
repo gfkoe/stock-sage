@@ -1,26 +1,41 @@
 "use client";
 import React from "react";
 import { useState } from "react";
+import { useEffect } from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { getStock } from "@/actions/YahooFetch";
 import AlertComponent from "@/components/Alert";
 import { UserAuthForm } from "@/components/UserAuthForm";
-
+import { useSession } from "next-auth/react"
 type Stock = {
   name: string;
   price: number;
 };
 
 function StockList() {
-  const [stocks, setStocks] = useState<Stock[]>([]);
+  const { data: session, status } = useSession();
+  const [stocks, setStocks] = useState<Stock[]>(() => {
+    const savedStocks = localStorage.getItem("stocks");
+    return savedStocks ? JSON.parse(savedStocks) : [];
+  });
   const [stockName, setStockName] = useState<string>("");
   const [error, setError] = useState<string | null>(null);
-  const [loggedIn, setLoggedIn] = useState<boolean>(false);
+  //  const [loggedIn, setLoggedIn] = useState<boolean>(false);
   const [showLogIn, setShowLogIn] = useState<boolean>(false);
+
+
+  const loggedIn = status === "authenticated"
+
+  useEffect(() => {
+
+    localStorage.setItem("stocks", JSON.stringify(stocks));
+  }, [stocks]); // Only run this effect when stocks change
+
   function handleChange(event: React.ChangeEvent<any>): void {
     setStockName(event.target.value);
   }
+
   async function addToList(): Promise<void> {
     if (!loggedIn) {
       setShowLogIn(true);
@@ -31,7 +46,6 @@ function StockList() {
       const { regularMarketPrice, symbol } = await getStock(stockName);
       const stock = { name: symbol, price: regularMarketPrice };
       setStocks((prevStocks) => [...prevStocks, stock as Stock]);
-
       setStockName("");
     } catch (error: unknown) {
       if (error instanceof Error) {
@@ -39,14 +53,15 @@ function StockList() {
       }
     }
   }
+
   function closeAlert(): void {
     setError(null);
   }
+
   function handleLogin(): void {
-    setLoggedIn(true);
-    console.log(loggedIn);
     setShowLogIn(false);
   }
+
   return (
     <div className="flex space-evenly flex-col space-y-4">
       <div className="h-16 flex flex-col items-center">
