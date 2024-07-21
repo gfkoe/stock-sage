@@ -44,6 +44,7 @@ function StockList() {
   }
   function handleLogin(): void {
     setLoggedIn(true);
+    console.log(loggedIn);
     setShowLogIn(false);
   }
   return (
