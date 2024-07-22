@@ -36,9 +36,7 @@ function StockList() {
 
   const [showLogIn, setShowLogIn] = useState<boolean>(false);
 
-  const [showList, setShowList] = useState<boolean>(() => {
-    return stocks.length === 0 ? false : true;
-  });
+  const [showList, setShowList] = useState<boolean>(stocks.length > 0);
 
   const loggedIn = status === "authenticated"
 
