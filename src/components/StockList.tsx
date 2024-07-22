@@ -8,29 +8,43 @@ import { getStock } from "@/actions/YahooFetch";
 import AlertComponent from "@/components/Alert";
 import { UserAuthForm } from "@/components/UserAuthForm";
 import { useSession } from "next-auth/react"
+import { Table, TableBody, TableCaption, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+
+
 type Stock = {
   name: string;
   price: number;
+  targetPrice?: number;
 };
 
 function StockList() {
+
   const { data: session, status } = useSession();
+
   const [stocks, setStocks] = useState<Stock[]>(() => {
-    const savedStocks = localStorage.getItem("stocks");
-    return savedStocks ? JSON.parse(savedStocks) : [];
+    if (typeof window !== "undefined") {
+      const savedStocks = localStorage.getItem("stocks");
+      return savedStocks ? JSON.parse(savedStocks) : [];
+    }
   });
+
   const [stockName, setStockName] = useState<string>("");
+
   const [error, setError] = useState<string | null>(null);
+
   //  const [loggedIn, setLoggedIn] = useState<boolean>(false);
+
   const [showLogIn, setShowLogIn] = useState<boolean>(false);
 
+  const [showList, setShowList] = useState<boolean>(() => {
+    return stocks.length === 0 ? false : true;
+  });
 
   const loggedIn = status === "authenticated"
 
   useEffect(() => {
-
     localStorage.setItem("stocks", JSON.stringify(stocks));
-  }, [stocks]); // Only run this effect when stocks change
+  }, [stocks]);
 
   function handleChange(event: React.ChangeEvent<any>): void {
     setStockName(event.target.value);
@@ -47,7 +61,30 @@ function StockList() {
       const stock = { name: symbol, price: regularMarketPrice };
       setStocks((prevStocks) => [...prevStocks, stock as Stock]);
       setStockName("");
+      setShowList(true);
     } catch (error: unknown) {
+      if (error instanceof Error) {
+        setError(error.message);
+      }
+    }
+  }
+
+  async function removeFromList(stock: Stock): Promise<void> {
+
+    try {
+
+      setStocks((prevStocks) => [...prevStocks, stock as Stock]);
+
+      const newStocks = stocks.filter((s: Stock) => s.name !== stock.name);
+
+      setStocks(newStocks);
+
+      if (newStocks.length === 0) {
+        setShowList(false);
+      }
+
+    }
+    catch (error: unknown) {
       if (error instanceof Error) {
         setError(error.message);
       }
@@ -61,6 +98,19 @@ function StockList() {
   function handleLogin(): void {
     setShowLogIn(false);
   }
+
+  function setTargetPrice(stock: Stock, targetPrice: number): void {
+    if (targetPrice != null) {
+      stock.targetPrice = targetPrice;
+    }
+  }
+
+  function updateStockPrice(stock: Stock, newPrice: number): void {
+    if (newPrice != null && newPrice != stock.price) {
+      stock.price = newPrice;
+    }
+  }
+
 
   return (
     <div className="flex space-evenly flex-col space-y-4">
@@ -99,7 +149,33 @@ function StockList() {
           <UserAuthForm onSubmit={handleLogin} />
         </div>
       )}
-      <ul className="block items-center justify-evenly">
+
+
+      {showList && (
+        <Table>
+          <TableHeader className="">
+            <TableRow className="">
+              <TableHead className="text-left">Stock</TableHead>
+              <TableHead className="text-center">Current Price</TableHead>
+              <TableHead className="">Target price</TableHead>
+              <TableHead className="text-right w-[100px]">Adjust</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {stocks.map((stock, index) => (
+              <TableRow className="" key={index}>
+                <TableCell className="font-medium text-left">{stock.name}</TableCell>
+                <TableCell className="text-center">${Number(stock.price).toFixed(2)}</TableCell>
+                <TableCell className="">$250.00</TableCell>
+                <TableCell className="text-right w-50%"><Button onClick={() => removeFromList(stock)}>Remove</Button></TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      )}
+
+
+      {/*<ul className="block items-center justify-evenly">
         {stocks.map((stock, index) => (
           <li className="flex justify-between text-4xl" key={index}>
             <span className="text-left">{stock.name}:</span>
@@ -108,8 +184,9 @@ function StockList() {
             </span>
           </li>
         ))}
-      </ul>
-    </div>
+      </ul> */}
+    </div >
   );
 }
 export default StockList;
+
