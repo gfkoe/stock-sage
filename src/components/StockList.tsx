@@ -7,9 +7,16 @@ import { Button } from "@/components/ui/button";
 import { getStock } from "@/actions/YahooFetch";
 import AlertComponent from "@/components/Alert";
 import { UserAuthForm } from "@/components/UserAuthForm";
-import { useSession } from "next-auth/react"
-import { Table, TableBody, TableCaption, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-
+import { useSession } from "next-auth/react";
+import {
+  Table,
+  TableBody,
+  TableCaption,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 
 type Stock = {
   name: string;
@@ -18,7 +25,6 @@ type Stock = {
 };
 
 function StockList() {
-
   const { data: session, status } = useSession();
 
   const [stocks, setStocks] = useState<Stock[]>(() => {
@@ -36,9 +42,9 @@ function StockList() {
 
   const [showLogIn, setShowLogIn] = useState<boolean>(false);
 
-  const [showList, setShowList] = useState<boolean>(stocks.length > 0);
+  const [showList, setShowList] = useState<boolean>(stocks?.length > 0);
 
-  const loggedIn = status === "authenticated"
+  const loggedIn = status === "authenticated";
 
   useEffect(() => {
     localStorage.setItem("stocks", JSON.stringify(stocks));
@@ -68,21 +74,17 @@ function StockList() {
   }
 
   async function removeFromList(stock: Stock): Promise<void> {
-
     try {
-
       setStocks((prevStocks) => [...prevStocks, stock as Stock]);
 
       const newStocks = stocks.filter((s: Stock) => s.name !== stock.name);
 
       setStocks(newStocks);
 
-      if (newStocks.length === 0) {
+      if (newStocks?.length === 0) {
         setShowList(false);
       }
-
-    }
-    catch (error: unknown) {
+    } catch (error: unknown) {
       if (error instanceof Error) {
         setError(error.message);
       }
@@ -108,7 +110,6 @@ function StockList() {
       stock.price = newPrice;
     }
   }
-
 
   return (
     <div className="flex space-evenly flex-col space-y-4">
@@ -148,7 +149,6 @@ function StockList() {
         </div>
       )}
 
-
       {showList && (
         <Table>
           <TableHeader className="">
@@ -162,16 +162,21 @@ function StockList() {
           <TableBody>
             {stocks.map((stock, index) => (
               <TableRow className="" key={index}>
-                <TableCell className="font-medium text-left">{stock.name}</TableCell>
-                <TableCell className="text-center">${Number(stock.price).toFixed(2)}</TableCell>
+                <TableCell className="font-medium text-left">
+                  {stock.name}
+                </TableCell>
+                <TableCell className="text-center">
+                  ${Number(stock.price).toFixed(2)}
+                </TableCell>
                 <TableCell className="">$250.00</TableCell>
-                <TableCell className="text-right w-50%"><Button onClick={() => removeFromList(stock)}>Remove</Button></TableCell>
+                <TableCell className="text-right w-50%">
+                  <Button onClick={() => removeFromList(stock)}>Remove</Button>
+                </TableCell>
               </TableRow>
             ))}
           </TableBody>
         </Table>
       )}
-
 
       {/*<ul className="block items-center justify-evenly">
         {stocks.map((stock, index) => (
@@ -183,8 +188,7 @@ function StockList() {
           </li>
         ))}
       </ul> */}
-    </div >
+    </div>
   );
 }
 export default StockList;
-
