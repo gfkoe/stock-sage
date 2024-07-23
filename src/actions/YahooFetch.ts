@@ -11,5 +11,7 @@ export async function getStock(ticker: string) {
   return { regularMarketPrice, symbol };
 }
 
-export async function checkPrice(ticker: string) {}
+export async function checkPrice(stock: Stock) {
+  //
+}
 export default getStock;

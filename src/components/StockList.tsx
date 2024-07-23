@@ -136,7 +136,7 @@ function StockList() {
           name="stockName"
           value={stockName}
           onChange={handleChange}
-          maxLength={5}
+          maxLength={10}
         />
         &nbsp;
         <Button onClick={addToList} type="submit">
@@ -155,7 +155,7 @@ function StockList() {
             <TableRow className="">
               <TableHead className="text-left">Stock</TableHead>
               <TableHead className="text-center">Current Price</TableHead>
-              <TableHead className="">Target price</TableHead>
+              <TableHead className="text-center">Target price</TableHead>
               <TableHead className="text-right w-[100px]">Adjust</TableHead>
             </TableRow>
           </TableHeader>
@@ -168,9 +168,20 @@ function StockList() {
                 <TableCell className="text-center">
                   ${Number(stock.price).toFixed(2)}
                 </TableCell>
-                <TableCell className="">$250.00</TableCell>
-                <TableCell className="text-right w-50%">
-                  <Button onClick={() => removeFromList(stock)}>Remove</Button>
+                <TableCell className="text-center">
+                  {typeof stock.targetPrice === "number"
+                    ? `${Number(stock.targetPrice).toFixed(2)}`
+                    : "--"}
+                </TableCell>
+                <TableCell className="flex flex-row text-right w-50%">
+                  <Button
+                    variant="destructive"
+                    onClick={() => removeFromList(stock)}
+                  >
+                    Remove
+                  </Button>
+                  &nbsp;
+                  <Button>Adjust Price</Button>
                 </TableCell>
               </TableRow>
             ))}
