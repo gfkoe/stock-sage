@@ -152,36 +152,37 @@ function StockList() {
       {showList && (
         <Table>
           <TableHeader className="">
-            <TableRow className="">
-              <TableHead className="text-left">Stock</TableHead>
-              <TableHead className="text-center">Current Price</TableHead>
-              <TableHead className="text-center">Target price</TableHead>
-              <TableHead className="text-right w-[100px]">Adjust</TableHead>
+            <TableRow className="w-full">
+              <TableHead className="w-1/4 text-center">Stock</TableHead>
+              <TableHead className="w-1/4 text-center">Current Price</TableHead>
+              <TableHead className="w-1/4 text-center">Target price</TableHead>
+              <TableHead className="w-1/4 text-center">Adjust</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {stocks.map((stock, index) => (
               <TableRow className="" key={index}>
-                <TableCell className="font-medium text-left">
+                <TableCell className="font-medium w-1/4 text-center">
                   {stock.name}
                 </TableCell>
-                <TableCell className="text-center">
+                <TableCell className="w-1/4 text-center">
                   ${Number(stock.price).toFixed(2)}
                 </TableCell>
-                <TableCell className="text-center">
+                <TableCell className="w-1/4 text-center">
                   {typeof stock.targetPrice === "number"
                     ? `${Number(stock.targetPrice).toFixed(2)}`
                     : "--"}
                 </TableCell>
-                <TableCell className="flex flex-row text-right w-50%">
+                <TableCell className="w-1/4 text-center">
                   <Button
                     variant="destructive"
                     onClick={() => removeFromList(stock)}
+                    className="w-1/6"
                   >
-                    Remove
+                    X
                   </Button>
                   &nbsp;
-                  <Button>Adjust Price</Button>
+                  <Button className="w-1/3">Edit Price</Button>
                 </TableCell>
               </TableRow>
             ))}
