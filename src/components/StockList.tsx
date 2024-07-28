@@ -1,5 +1,4 @@
 "use client";
-
 import React, { useState, useEffect } from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -53,16 +52,32 @@ function StockList() {
   }, [stocks, isClient]);
 
   // Fetch and update stock prices
-  const fetchStockPrices = async () => {
-    if (stocks.length > 0) {
-      for (const stock of stocks) {
-        await updateStockPrice(stock);
-      }
-    }
-  };
 
   // Poll for updates to stock prices every second
   useEffect(() => {
+    const fetchStockPrices = async () => {
+      if (stocks.length > 0) {
+        for (const stock of stocks) {
+          await updateStockPrice(stock);
+        }
+      }
+    };
+    const updateStockPrice = async (stock: Stock): Promise<void> => {
+      try {
+        const checkStockPrice = await checkPrice(stock.name);
+        if (checkStockPrice != null && checkStockPrice !== stock.price) {
+          setStocks((prevStocks) =>
+            prevStocks.map((s) =>
+              s.name === stock.name ? { ...s, price: checkStockPrice } : s,
+            ),
+          );
+        }
+      } catch (error) {
+        if (error instanceof Error) {
+          setError(error.message);
+        }
+      }
+    };
     fetchStockPrices(); // Initial fetch to populate data
     const intervalId = setInterval(() => {
       stocks.forEach((stock) => {
@@ -100,7 +115,9 @@ function StockList() {
   // Remove a stock from the list
   async function removeFromList(stock: Stock): Promise<void> {
     try {
-      setStocks((prevStocks) => prevStocks.filter((s) => s.name !== stock.name));
+      setStocks((prevStocks) =>
+        prevStocks.filter((s) => s.name !== stock.name),
+      );
     } catch (error: unknown) {
       if (error instanceof Error) {
         setError(error.message);
@@ -138,22 +155,6 @@ function StockList() {
   };
 
   // Update the price of a stock
-  const updateStockPrice = async (stock: Stock): Promise<void> => {
-    try {
-      const checkStockPrice = await checkPrice(stock.name);
-      if (checkStockPrice != null && checkStockPrice !== stock.price) {
-        setStocks((prevStocks) =>
-          prevStocks.map((s) =>
-            s.name === stock.name ? { ...s, price: checkStockPrice } : s
-          )
-        );
-      }
-    } catch (error) {
-      if (error instanceof Error) {
-        setError(error.message);
-      }
-    }
-  };
 
   return (
     <div className="flex space-evenly flex-col space-y-4">
