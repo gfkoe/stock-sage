@@ -15,6 +15,16 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import {
+  Dialog,
+  DialogContent,
+  DialogClose,
+  DialogTitle,
+  DialogHeader,
+  DialogFooter,
+  DialogDescription,
+  DialogTrigger,
+} from "@/components/ui/dialog";
 
 type Stock = {
   name: string;
@@ -36,6 +46,7 @@ function StockList() {
   });
 
   const [stockName, setStockName] = useState<string>("");
+  const [targetPrice, setTargetPrice] = useState<number>(0);
   const [error, setError] = useState<string | null>(null);
   const [showLogIn, setShowLogIn] = useState<boolean>(false);
 
@@ -74,8 +85,14 @@ function StockList() {
   }, [stocks]);
 
   // Handle change in stock input field
-  function handleChange(event: React.ChangeEvent<HTMLInputElement>): void {
+  function handleStockChange(event: React.ChangeEvent<HTMLInputElement>): void {
     setStockName(event.target.value);
+  }
+
+  function handleTargetPriceChange(
+    event: React.ChangeEvent<HTMLInputElement>,
+  ): void {
+    setTargetPrice(Number(event.target.value));
   }
 
   // Add a stock to the list
@@ -100,7 +117,9 @@ function StockList() {
   // Remove a stock from the list
   async function removeFromList(stock: Stock): Promise<void> {
     try {
-      setStocks((prevStocks) => prevStocks.filter((s) => s.name !== stock.name));
+      setStocks((prevStocks) =>
+        prevStocks.filter((s) => s.name !== stock.name),
+      );
     } catch (error: unknown) {
       if (error instanceof Error) {
         setError(error.message);
@@ -119,9 +138,20 @@ function StockList() {
   }
 
   // Set the target price for a stock
-  function setTargetPrice(stock: Stock, targetPrice: number): void {
-    if (targetPrice != null) {
-      stock.targetPrice = targetPrice;
+  function updateTargetPrice(stock: Stock, targetPrice: number): void {
+    if (targetPrice <= 0) return;
+    try {
+      setStocks((prevStocks) =>
+        prevStocks.map((s) =>
+          s.name === stock.name ? { ...s, targetPrice: targetPrice } : s,
+        ),
+      );
+      //stock.targetPrice = targetPrice;
+      setTargetPrice(0);
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        setError(error.message);
+      }
     }
   }
 
@@ -144,8 +174,8 @@ function StockList() {
       if (checkStockPrice != null && checkStockPrice !== stock.price) {
         setStocks((prevStocks) =>
           prevStocks.map((s) =>
-            s.name === stock.name ? { ...s, price: checkStockPrice } : s
-          )
+            s.name === stock.name ? { ...s, price: checkStockPrice } : s,
+          ),
         );
       }
     } catch (error) {
@@ -179,7 +209,7 @@ function StockList() {
           placeholder="Ex: NVDA"
           name="stockName"
           value={stockName}
-          onChange={handleChange}
+          onChange={handleStockChange}
           maxLength={10}
         />
         &nbsp;
@@ -214,7 +244,7 @@ function StockList() {
                 </TableCell>
                 <TableCell className="w-1/4 text-center">
                   {typeof stock.targetPrice === "number"
-                    ? `${Number(stock.targetPrice).toFixed(2)}`
+                    ? `$${Number(stock.targetPrice).toFixed(2)}`
                     : "--"}
                 </TableCell>
                 <TableCell className="w-1/4 text-center">
@@ -226,7 +256,40 @@ function StockList() {
                     X
                   </Button>
                   &nbsp;
-                  <Button className="w-1/3">Edit Price</Button>
+                  <Dialog>
+                    <DialogTrigger asChild>
+                      <Button>Edit Price</Button>
+                    </DialogTrigger>
+                    <DialogContent>
+                      <DialogHeader>
+                        <DialogTitle>Edit Target Price</DialogTitle>
+
+                        <DialogDescription>
+                          Set the target price for the stock here
+                        </DialogDescription>
+                      </DialogHeader>
+                      <div className="flex justify-center">
+                        <Input
+                          type="number"
+                          placeholder="Enter target price"
+                          value={stock.targetPrice || targetPrice}
+                          onChange={handleTargetPriceChange}
+                        />
+                      </div>
+                      <DialogFooter>
+                        <DialogClose asChild>
+                          <Button
+                            onClick={() =>
+                              updateTargetPrice(stock, targetPrice)
+                            }
+                            type="submit"
+                          >
+                            Submit
+                          </Button>
+                        </DialogClose>
+                      </DialogFooter>
+                    </DialogContent>
+                  </Dialog>
                 </TableCell>
               </TableRow>
             ))}
