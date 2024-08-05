@@ -36,7 +36,6 @@ function StockList() {
   const { status } = useSession();
   const loggedIn = status === "authenticated";
 
-  // Initialize state with localStorage data if available
   const [stocks, setStocks] = useState<Stock[]>(() => {
     if (typeof window !== "undefined") {
       const savedStocks = localStorage.getItem("stocks");
@@ -50,13 +49,11 @@ function StockList() {
   const [error, setError] = useState<string | null>(null);
   const [showLogIn, setShowLogIn] = useState<boolean>(false);
 
-  // Track client-side rendering
   const [isClient, setIsClient] = useState(false);
   useEffect(() => {
     setIsClient(true);
   }, []);
 
-  // Update `localStorage` whenever `stocks` state changes
   useEffect(() => {
     if (isClient) {
       localStorage.setItem("stocks", JSON.stringify(stocks));
@@ -64,22 +61,38 @@ function StockList() {
   }, [stocks, isClient]);
 
   // Fetch and update stock prices
-  const fetchStockPrices = async () => {
-    if (stocks.length > 0) {
-      for (const stock of stocks) {
-        await updateStockPrice(stock);
-      }
-    }
-  };
 
   // Poll for updates to stock prices every second
   useEffect(() => {
+    const fetchStockPrices = async () => {
+      if (stocks.length > 0) {
+        for (const stock of stocks) {
+          await updateStockPrice(stock);
+        }
+      }
+    };
+    const updateStockPrice = async (stock: Stock): Promise<void> => {
+      try {
+        const checkStockPrice = await checkPrice(stock.name);
+        if (checkStockPrice != null && checkStockPrice !== stock.price) {
+          setStocks((prevStocks) =>
+            prevStocks.map((s) =>
+              s.name === stock.name ? { ...s, price: checkStockPrice } : s,
+            ),
+          );
+        }
+      } catch (error) {
+        if (error instanceof Error) {
+          setError(error.message);
+        }
+      }
+    };
     fetchStockPrices(); // Initial fetch to populate data
     const intervalId = setInterval(() => {
       stocks.forEach((stock) => {
         updateStockPrice(stock);
       });
-    }, 1000); // Poll every 1 second
+    }, 10000); // Poll every 1 second
 
     return () => clearInterval(intervalId); // Cleanup interval on unmount
   }, [stocks]);
@@ -168,22 +181,6 @@ function StockList() {
   };
 
   // Update the price of a stock
-  const updateStockPrice = async (stock: Stock): Promise<void> => {
-    try {
-      const checkStockPrice = await checkPrice(stock.name);
-      if (checkStockPrice != null && checkStockPrice !== stock.price) {
-        setStocks((prevStocks) =>
-          prevStocks.map((s) =>
-            s.name === stock.name ? { ...s, price: checkStockPrice } : s,
-          ),
-        );
-      }
-    } catch (error) {
-      if (error instanceof Error) {
-        setError(error.message);
-      }
-    }
-  };
 
   return (
     <div className="flex space-evenly flex-col space-y-4">
