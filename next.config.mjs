@@ -3,8 +3,8 @@ const withPWA = withPWAInit({
   dest: "public",
 });
 /** @type {import('next').NextConfig} */
-const nextConfig = {};
+//const nextConfig = {};
 
 export default withPWA({
-  nextConfig,
+  // nextConfig,
 });
