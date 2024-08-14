@@ -23,7 +23,7 @@ export const metadata: Metadata = {
   manifest: "./manifest.json",
   appleWebApp: {
     capable: true,
-    statusBarStyle: "default",
+    statusBarStyle: "black-translucent",
     title: APP_DEFAULT_TITLE,
     // startUpImage: [],
   },
@@ -59,14 +59,16 @@ export default function RootLayout({
       <body
         className={cn(
           "min-h-screen bg-background font-sans antialiased",
-          fontSans.variable
-        )}>
+          fontSans.variable,
+        )}
+      >
         <SessionProvider>
           <ThemeProvider
             attribute="class"
             defaultTheme="system"
             enableSystem
-            disableTransitionOnChange>
+            disableTransitionOnChange
+          >
             <Header text="Stock Sage" />
             {children}
           </ThemeProvider>
