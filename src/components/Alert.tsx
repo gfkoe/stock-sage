@@ -13,7 +13,7 @@ export default function AlertComponent({
 }: AlertInfo) {
   return (
     <Alert
-      className="flex items-center justify-between max-w-md transition duration-500 ease-out translate-y-4 animate-slideIn"
+      className="error-alert flex items-center justify-between max-w-md transition duration-500 ease-out translate-y-4 animate-slideIn"
       variant="destructive"
     >
       <div className="flex items-start">

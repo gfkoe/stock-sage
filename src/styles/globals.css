@@ -19,3 +19,7 @@
     animation: slideIn 0.5s ease-out forwards;
   }
 }
+.error-alert {
+  background-color: rgb(127, 29, 29, 0.5);
+  color: white;
+}
