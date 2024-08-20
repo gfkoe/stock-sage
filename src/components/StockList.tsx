@@ -267,7 +267,8 @@ function StockList() {
                       </DialogHeader>
                       <div className="flex justify-center">
                         <Input
-                          type="number"
+                          type="text"
+                          inputMode="decimal"
                           placeholder="Enter target price"
                           value={stock.targetPrice || targetPrice}
                           onChange={handleTargetPriceChange}

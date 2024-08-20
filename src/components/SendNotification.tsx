@@ -145,30 +145,24 @@ export default function SendNotification() {
           <Button variant="outline" size="icon">
             <Bell className="h-[1.2rem] w-[1.2rem] rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
             <BellOff className="absolute h-[1.2rem] w-[1.2rem] rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
-            <span className="sr-only">Toggle theme</span>
+            <span className="sr-only">Toggle notifications</span>
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end">
-          <DropdownMenuItem
-            className="hover:cursor-pointer"
-            onClick={() => subscribeButtonOnClick}
-            disabled={isSubscribed}
-          >
-            Subscribe
+          <DropdownMenuItem className="hover:cursor-pointer">
+            <button type="button" onClick={subscribeButtonOnClick}>
+              Subscribe
+            </button>
           </DropdownMenuItem>
-          <DropdownMenuItem
-            className="hover:cursor-pointer"
-            onClick={() => unsubscribeButtonOnClick}
-            disabled={!isSubscribed}
-          >
-            Unsubscribe
+          <DropdownMenuItem className="hover:cursor-pointer">
+            <button type="button" onClick={unsubscribeButtonOnClick}>
+              Unsubscribe
+            </button>
           </DropdownMenuItem>
-          <DropdownMenuItem
-            className="hover:cursor-pointer"
-            onClick={() => sendNotificationButtonOnClick}
-            disabled={!isSubscribed}
-          >
-            Send Notification
+          <DropdownMenuItem className="hover:cursor-pointer">
+            <button type="button" onClick={sendNotificationButtonOnClick}>
+              Send Notification
+            </button>
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
