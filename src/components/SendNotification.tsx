@@ -93,6 +93,7 @@ export default function SendNotification() {
     // TODO: you should call your API to delete or invalidate subscription data on the server
     setSubscription(null);
     setIsSubscribed(false);
+    alert("Web push unsubscribed!");
     console.log("Web push unsubscribed!");
   };
 
@@ -107,7 +108,7 @@ export default function SendNotification() {
     }
 
     try {
-      await fetch("/notification", {
+      await fetch("/api/notification", {
         method: "POST",
         headers: {
           "Content-type": "application/json",
