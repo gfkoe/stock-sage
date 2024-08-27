@@ -115,6 +115,7 @@ export default function SendNotification() {
         },
         body: JSON.stringify({
           subscription,
+          text: "Stock update",
         }),
         signal: AbortSignal.timeout(10000),
       });
