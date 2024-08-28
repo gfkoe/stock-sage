@@ -10,6 +10,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { sendNotificationOfStockPriceChange } from "@/actions/Notifications"; // Import utility function
 
 const base64ToUint8Array = (base64: string) => {
   const padding = "=".repeat((4 - (base64.length % 4)) % 4);
@@ -56,6 +57,24 @@ export default function SendNotification() {
       });
     }
   }, []);
+
+  const updateLocalStorageSubscription = (sub: PushSubscription | null) => {
+    if (sub) {
+      const subscriptionJson = {
+        endpoint: sub.endpoint,
+        keys: {
+          p256dh: arrayBufferToBase64(sub.getKey("p256dh")),
+          auth: arrayBufferToBase64(sub.getKey("auth")),
+        },
+      };
+      localStorage.setItem(
+        "webPushSubscription",
+        JSON.stringify(subscriptionJson),
+      );
+    } else {
+      localStorage.removeItem("webPushSubscription");
+    }
+  };
 
   const subscribeButtonOnClick: MouseEventHandler<HTMLButtonElement> = async (
     event,
@@ -139,6 +158,49 @@ export default function SendNotification() {
       alert("An error happened.");
     }
   };
+  const sendNotificationOfStockPriceChange = async (
+    name: String,
+    targetPrice: number,
+  ) => {
+    //event.preventDefault();
+
+    if (!subscription) {
+      alert("Web push not subscribed");
+      return;
+    }
+
+    try {
+      await fetch("/api/notification", {
+        method: "POST",
+        headers: {
+          "Content-type": "application/json",
+        },
+        body: JSON.stringify({
+          subscription,
+          text: name + " has reached target value of " + targetPrice,
+        }),
+        signal: AbortSignal.timeout(10000),
+      });
+    } catch (err) {
+      if (err instanceof Error) {
+        if (err.name === "TimeoutError") {
+          console.error("Timeout: It took too long to get the result.");
+        } else if (err.name === "AbortError") {
+          console.error(
+            "Fetch aborted by user action (browser stop button, closing tab, etc.)",
+          );
+        } else if (err.name === "TypeError") {
+          console.error("The AbortSignal.timeout() method is not supported.");
+        } else {
+          // A network error, or some other problem.
+          console.error(`Error: type: ${err.name}, message: ${err.message}`);
+        }
+      } else {
+        console.error(err);
+      }
+      alert("An error happened.");
+    }
+  };
 
   return (
     <>
@@ -171,3 +233,5 @@ export default function SendNotification() {
     </>
   );
 }
+
+export { sendNotificationOfStockPriceChange };

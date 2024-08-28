@@ -5,6 +5,7 @@ import { cn } from "@/lib/utils";
 import { ThemeProvider } from "@/components/theme-provider";
 import Header from "@/components/Header";
 import { SessionProvider } from "next-auth/react";
+import { SubscriptionProvider } from "@/components/SubscriptionProvider";
 
 const APP_NAME = "Stock Sage";
 const APP_DEFAULT_TITLE = "Stock Sage";
@@ -78,8 +79,10 @@ export default function RootLayout({
             enableSystem
             disableTransitionOnChange
           >
-            <Header text="Stock Sage" />
-            {children}
+            <SubscriptionProvider>
+              <Header text="Stock Sage" />
+              {children}
+            </SubscriptionProvider>
           </ThemeProvider>
         </SessionProvider>
       </body>

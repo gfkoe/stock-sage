@@ -5,6 +5,8 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { getStock } from "@/actions/YahooFetch";
 import AlertComponent from "@/components/Alert";
+import { sendNotificationOfStockPriceChange } from "@/actions/Notifications";
+import { useSubscription } from "@/components/SubscriptionProvider";
 import { UserAuthForm } from "@/components/UserAuthForm";
 import { useSession } from "next-auth/react";
 import {
@@ -30,15 +32,19 @@ type Stock = {
   name: string;
   price: number;
   targetPrice?: number;
+  currentPriceIsHigher?: boolean;
 };
 
 function StockList() {
   const { status } = useSession();
   const loggedIn = status === "authenticated";
 
+  const { subscription } = useSubscription();
+
   const [stocks, setStocks] = useState<Stock[]>(() => {
     if (typeof window !== "undefined") {
       const savedStocks = localStorage.getItem("stocks");
+
       return savedStocks ? JSON.parse(savedStocks) : [];
     }
     return [];
@@ -91,8 +97,35 @@ function StockList() {
     const intervalId = setInterval(() => {
       stocks.forEach((stock) => {
         updateStockPrice(stock);
+        console.log(stock.price, stock.targetPrice);
+        if (
+          stock.currentPriceIsHigher &&
+          stock.targetPrice &&
+          stock.price <= stock.targetPrice
+        ) {
+          if (subscription) {
+            sendNotificationOfStockPriceChange(
+              subscription,
+              stock.name,
+              stock.targetPrice,
+            );
+          }
+        }
+        if (
+          !stock.currentPriceIsHigher &&
+          stock.targetPrice &&
+          stock.price >= stock.targetPrice
+        ) {
+          if (subscription) {
+            sendNotificationOfStockPriceChange(
+              subscription,
+              stock.name,
+              stock.targetPrice,
+            );
+          }
+        }
       });
-    }, 10000); // Poll every 1 second
+    }, 10000); // Poll every 10 seconds
 
     return () => clearInterval(intervalId); // Cleanup interval on unmount
   }, [stocks]);
@@ -159,6 +192,11 @@ function StockList() {
           s.name === stock.name ? { ...s, targetPrice: targetPrice } : s,
         ),
       );
+      if (stock.price < targetPrice) {
+        stock.currentPriceIsHigher = false;
+      } else if (stock.price > targetPrice) {
+        stock.currentPriceIsHigher = true;
+      }
       //stock.targetPrice = targetPrice;
       setTargetPrice(0);
     } catch (error: unknown) {
@@ -181,6 +219,40 @@ function StockList() {
   };
 
   // Update the price of a stock
+  const sendNotiticationOfStock = async (stock: Stock) => {
+    try {
+      await fetch("/api/notification", {
+        method: "POST",
+        headers: {
+          "Content-type": "application/json",
+        },
+        body: JSON.stringify({
+          subscription: subscription,
+          text:
+            stock.name + " has reached target value of " + stock.targetPrice,
+        }),
+        signal: AbortSignal.timeout(10000),
+      });
+    } catch (err) {
+      if (err instanceof Error) {
+        if (err.name === "TimeoutError") {
+          console.error("Timeout: It took too long to get the result.");
+        } else if (err.name === "AbortError") {
+          console.error(
+            "Fetch aborted by user action (browser stop button, closing tab, etc.)",
+          );
+        } else if (err.name === "TypeError") {
+          console.error("The AbortSignal.timeout() method is not supported.");
+        } else {
+          // A network error, or some other problem.
+          console.error(`Error: type: ${err.name}, message: ${err.message}`);
+        }
+      } else {
+        console.error(err);
+      }
+      alert("An error happened.");
+    }
+  };
 
   return (
     <div className="flex space-evenly flex-col space-y-4">
