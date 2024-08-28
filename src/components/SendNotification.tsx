@@ -58,24 +58,6 @@ export default function SendNotification() {
     }
   }, []);
 
-  const updateLocalStorageSubscription = (sub: PushSubscription | null) => {
-    if (sub) {
-      const subscriptionJson = {
-        endpoint: sub.endpoint,
-        keys: {
-          p256dh: arrayBufferToBase64(sub.getKey("p256dh")),
-          auth: arrayBufferToBase64(sub.getKey("auth")),
-        },
-      };
-      localStorage.setItem(
-        "webPushSubscription",
-        JSON.stringify(subscriptionJson),
-      );
-    } else {
-      localStorage.removeItem("webPushSubscription");
-    }
-  };
-
   const subscribeButtonOnClick: MouseEventHandler<HTMLButtonElement> = async (
     event,
   ) => {
