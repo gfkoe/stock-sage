@@ -1,13 +1,34 @@
 "use client";
-import { createContext, useContext, useState, useEffect } from "react";
+import React, {
+  createContext,
+  useContext,
+  useState,
+  useEffect,
+  ReactNode,
+} from "react";
 
-// Create the SubscriptionContext
-const SubscriptionContext = createContext(null);
+type SubscriptionProviderProps = {
+  children: ReactNode; // Explicitly type children as ReactNode
+};
 
-// Create a Provider component
-export const SubscriptionProvider = ({ children }) => {
-  const [subscription, setSubscription] = useState(null);
-  const [registration, setRegistration] = useState(null);
+const SubscriptionContext = createContext<{
+  subscription: PushSubscription | null;
+  registration: ServiceWorkerRegistration | null;
+  isSubscribed: boolean;
+  setSubscription: React.Dispatch<
+    React.SetStateAction<PushSubscription | null>
+  >;
+  setIsSubscribed: React.Dispatch<React.SetStateAction<boolean>>;
+} | null>(null);
+
+export const SubscriptionProvider: React.FC<SubscriptionProviderProps> = ({
+  children,
+}) => {
+  const [subscription, setSubscription] = useState<PushSubscription | null>(
+    null,
+  );
+  const [registration, setRegistration] =
+    useState<ServiceWorkerRegistration | null>(null);
   const [isSubscribed, setIsSubscribed] = useState(false);
 
   useEffect(() => {
@@ -39,7 +60,6 @@ export const SubscriptionProvider = ({ children }) => {
   );
 };
 
-// Create a custom hook to use the SubscriptionContext
 export const useSubscription = () => {
   const context = useContext(SubscriptionContext);
   if (!context) {
