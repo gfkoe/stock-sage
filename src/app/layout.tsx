@@ -6,6 +6,7 @@ import { ThemeProvider } from "@/components/theme-provider";
 import Header from "@/components/Header";
 import { SessionProvider } from "next-auth/react";
 import { SubscriptionProvider } from "@/components/SubscriptionProvider";
+import { SpeedInsights } from "@vercel/speed-insights/next";
 
 const APP_NAME = "Stock Sage";
 const APP_DEFAULT_TITLE = "Stock Sage";
@@ -82,6 +83,7 @@ export default function RootLayout({
             <SubscriptionProvider>
               <Header text="Stock Sage" />
               {children}
+              <SpeedInsights />
             </SubscriptionProvider>
           </ThemeProvider>
         </SessionProvider>
