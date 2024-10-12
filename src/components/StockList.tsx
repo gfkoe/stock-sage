@@ -31,7 +31,7 @@ import {
 type Stock = {
   name: string;
   price: number;
-  targetPrice?: number;
+  targetPrice?: string;
   currentPriceIsHigher?: boolean;
 };
 
@@ -101,26 +101,26 @@ function StockList() {
         if (
           stock.currentPriceIsHigher &&
           stock.targetPrice &&
-          stock.price <= stock.targetPrice
+          stock.price <= parseFloat(stock.targetPrice)
         ) {
           if (subscription) {
             sendNotificationOfStockPriceChange(
               subscription,
               stock.name,
-              stock.targetPrice,
+              parseFloat(stock.targetPrice),
             );
           }
         }
         if (
           !stock.currentPriceIsHigher &&
           stock.targetPrice &&
-          stock.price >= stock.targetPrice
+          stock.price >= parseFloat(stock.targetPrice)
         ) {
           if (subscription) {
             sendNotificationOfStockPriceChange(
               subscription,
               stock.name,
-              stock.targetPrice,
+              parseFloat(stock.targetPrice),
             );
           }
         }
@@ -137,8 +137,29 @@ function StockList() {
 
   function handleTargetPriceChange(
     event: React.ChangeEvent<HTMLInputElement>,
+    stockName: string,
   ): void {
-    setTargetPrice(Number(event.target.value));
+    const value = event.target.value;
+
+    // Regex to allow only valid dollar amounts with up to two decimal places
+    const validDollarAmount = /^\d+(\.\d{0,2})?$/;
+
+    if (validDollarAmount.test(value)) {
+      const parsedValue = parseFloat(value) || 0;
+      setTargetPrice(parsedValue);
+
+      // Update the target price for the corresponding stock
+      setStocks((prevStocks) =>
+        prevStocks.map((stock) =>
+          stock.name === stockName ? { ...stock, targetPrice: value } : stock,
+        ),
+      );
+
+      // Save updated stocks to localStorage (if necessary)
+      if (typeof window !== "undefined") {
+        localStorage.setItem("stocks", JSON.stringify(stocks));
+      }
+    }
   }
 
   // Add a stock to the list
@@ -184,12 +205,14 @@ function StockList() {
   }
 
   // Set the target price for a stock
-  function updateTargetPrice(stock: Stock, targetPrice: number): void {
+  function updateTargetPrice(stock: Stock): void {
     if (targetPrice <= 0) return;
     try {
       setStocks((prevStocks) =>
         prevStocks.map((s) =>
-          s.name === stock.name ? { ...s, targetPrice: targetPrice } : s,
+          s.name === stock.name
+            ? { ...s, targetPrice: targetPrice.toString() }
+            : s,
         ),
       );
       if (stock.price < targetPrice) {
@@ -198,7 +221,6 @@ function StockList() {
         stock.currentPriceIsHigher = true;
       }
       //stock.targetPrice = targetPrice;
-      setTargetPrice(0);
     } catch (error: unknown) {
       if (error instanceof Error) {
         setError(error.message);
@@ -312,7 +334,7 @@ function StockList() {
                   ${Number(stock.price).toFixed(2)}
                 </TableCell>
                 <TableCell className="w-1/4 text-center">
-                  {typeof stock.targetPrice === "number"
+                  {typeof stock.targetPrice
                     ? `$${Number(stock.targetPrice).toFixed(2)}`
                     : "--"}
                 </TableCell>
@@ -337,21 +359,23 @@ function StockList() {
                           Set the target price for the stock here
                         </DialogDescription>
                       </DialogHeader>
-                      <div className="flex justify-center">
+                      <div className="flex justify-center items-center">
+                        <label>$</label>
+                        &nbsp; &nbsp;
                         <Input
                           type="text"
                           inputMode="decimal"
                           placeholder="Enter target price"
-                          value={stock.targetPrice || targetPrice}
-                          onChange={handleTargetPriceChange}
+                          value={stock.targetPrice}
+                          onChange={(e) =>
+                            handleTargetPriceChange(e, stock.name)
+                          }
                         />
                       </div>
                       <DialogFooter>
                         <DialogClose asChild>
                           <Button
-                            onClick={() =>
-                              updateTargetPrice(stock, targetPrice)
-                            }
+                            onClick={() => updateTargetPrice(stock)}
                             type="submit"
                           >
                             Submit
